@@ -1,0 +1,41 @@
+<resources>
+    <string name="app_name">FlavrAdminPrimary</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Place Name</string>
+    <string name="nav_header_subtitle">Place Email Address</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="BASE_SERVER_URL">http://192.168.2.5:9999/api/v1</string>
+    <string name="temp_place_image_url">https://i0.wp.com/media.hungryforever.com/wp-content/uploads/2018/04/05223920/frappuccino-beverage-from-starbucks-coffee-157774909-5a6a23c2ba6177001a74f4b7.jpg</string>
+
+    <string-array name="categories">
+        <item>Burgers</item>
+        <item>Pizzas</item>
+        <item>Beverages</item>
+        <item>Milkshakes</item>
+        <item>Cold Drinks</item>
+        <item>Meals</item>
+        <item>Chinese</item>
+        <item>Chats</item>
+        <item>Ice Cream</item>
+        <item>Other</item>
+    </string-array>
+
+    <string-array name="category_images">
+        <item>https://www.checkers.com/wp-content/uploads/2017/03/BigBuford_Feature_1000x1000-600x600.jpg</item>
+        <item>http://www.nohopizza.com/images/pizza.jpeg</item>
+        <item>https://cdn.cnn.com/cnnnext/dam/assets/150929101049-black-coffee-stock-exlarge-169.jpg</item>
+        <item>https://truffle-assets.imgix.net/pxqrocxwsjcc_5KXUnXgvfywyaYUKEQokMu_the-scran-line_s3e19_smores-milkshake_squareThumbnail_en-US.jpeg</item>
+        <item>https://bevvyco.s3.amazonaws.com/img/drinks/aa/liaa/whiskey-and-coke-5b5766b04fd7d1673ac4b7af52062899-lg.jpg</item>
+        <item>http://www.manathota.in/mandapeta/wp-content/uploads/2017/11/veg-meals-600x600.jpg</item>
+        <item>https://thewoksoflife.com/wp-content/uploads/2017/01/long-life-noodles-4.jpg</item>
+        <item>https://qph.fs.quoracdn.net/main-qimg-bb8353289f6f45d729442bb0f7cbbfcb</item>
+        <item>https://www.whatsuplife.in/gurgaon/blog/wp-content/uploads/2015/07/Ice-Cream-900x579.jpg</item>
+        <item>http://delverde.us/wp-content/uploads/2017/12/pexels-photo-70497.jpeg</item>
+    </string-array>
+</resources>

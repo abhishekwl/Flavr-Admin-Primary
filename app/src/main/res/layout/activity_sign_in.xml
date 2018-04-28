@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:background="@color/colorPrimary"
+    tools:context=".Activities.SignInActivity">
+
+    <LinearLayout
+        android:paddingTop="20dp"
+        android:paddingStart="18dp"
+        android:paddingEnd="18dp"
+        android:clipToPadding="false"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:layout_marginTop="32dp"
+            android:id="@+id/signInLogoImageView"
+            tools:src="@drawable/logo_white"
+            android:layout_width="164dp"
+            android:layout_height="164dp" />
+
+        <TextView
+            android:textColor="@color/colorBackground"
+            android:fontFamily="@font/futura"
+            android:textSize="64sp"
+            android:textStyle="bold"
+            android:layout_marginTop="32dp"
+            android:text="Welcome."
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:textSize="32sp"
+            android:textColor="@color/colorTextDark"
+            android:fontFamily="sans-serif-light"
+            android:text="Sign in to continue :)"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_marginTop="48dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/signInEmailAddressEditText"
+                android:inputType="textEmailAddress"
+                android:hint="EMAIL ADDRESS"
+                android:fontFamily="sans-serif-light"
+                android:textSize="16sp"
+                android:backgroundTint="@color/colorBackground"
+                android:textColorHighlight="@color/colorBackground"
+                android:textColor="@android:color/white"
+                android:textColorHint="@color/colorBackground"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/signInPasswordEditText"
+                android:inputType="textPassword"
+                android:hint="PASSWORD"
+                android:fontFamily="sans-serif-light"
+                android:textSize="16sp"
+                android:textColorHighlight="@color/colorBackground"
+                android:backgroundTint="@color/colorBackground"
+                android:textColor="@android:color/white"
+                android:textColorHint="@color/colorBackground"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/signInNextButton"
+            android:src="@drawable/ic_navigate_next_black_24dp"
+            android:alpha="0.75"
+            android:tint="@color/colorPrimary"
+            app:backgroundTint="@color/colorBackground"
+            android:layout_gravity="end"
+            android:layout_marginTop="48dp"
+            app:fabSize="normal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+</ScrollView>

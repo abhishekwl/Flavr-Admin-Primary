@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_camera"
+            android:icon="@drawable/ic_menu_camera"
+            android:title="Update Picture" />
+        <item
+            android:id="@+id/nav_edit_place_name"
+            android:icon="@drawable/ic_mode_edit_black_24dp"
+            android:title="Edit Place Name" />
+        <item
+            android:id="@+id/nav_edit_range"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="Edit Visibility Range" />
+        <item
+            android:id="@+id/nav_reposition"
+            android:icon="@drawable/ic_location_on_black_24dp"
+            android:title="Reposition" />
+    </group>
+
+    <item android:title="Communicate">
+        <menu>
+            <item
+                android:id="@+id/nav_share"
+                android:icon="@drawable/ic_menu_share"
+                android:title="Share" />
+        </menu>
+    </item>
+
+</menu>
