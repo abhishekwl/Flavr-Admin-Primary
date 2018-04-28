@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
@@ -11,20 +12,29 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import io.github.abhishekwl.flavradminprimary.Adapters.MainViewPagerAdapter;
+import io.github.abhishekwl.flavradminprimary.Models.Hotel;
 import io.github.abhishekwl.flavradminprimary.R;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -63,7 +73,43 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             }
         });
+        performNetworkRequest();
         selectPage(1);
+    }
+
+    private void performNetworkRequest() {
+        String requestUrl = getString(R.string.BASE_SERVER_URL)+"/hotels?uid="+firebaseAuth.getCurrentUser().getUid();
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, requestUrl, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                if (response!=null) processResponse(response);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error!=null && error.getMessage()!=null) {
+                    Snackbar.make(mainTabLayout, error.getMessage(), Snackbar.LENGTH_SHORT).show();
+                    Log.v("MAIN_ACT_VOLLEY", error.getMessage());
+                }
+            }
+        });
+        requestQueue.add(jsonObjectRequest);
+    }
+
+    private void processResponse(JSONObject response) {
+        try {
+            String placeImageUrl = response.getString("image_url");
+            String placeName = response.getString("name");
+            String placeEmailId = response.getString("email_id");
+            String placeContactNumber = response.getString("contact_number");
+            int placeLatitude = response.getInt("latitude");
+            int placeLongitude = response.getInt("longitude");
+            Hotel hotel = new Hotel(placeName, placeImageUrl, placeEmailId, placeContactNumber, placeLatitude, placeLongitude);
+            setupHeaderLayout(hotel);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private void initializeNavigationView() {
@@ -73,20 +119,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
         headerLayout = navigationView.getHeaderView(0);
-        setupHeaderLayout();
         mainViewPager.setAdapter(new MainViewPagerAdapter(getSupportFragmentManager()));
         mainTabLayout.setupWithViewPager(mainViewPager);
     }
 
-    private void setupHeaderLayout() {
+    private void setupHeaderLayout(Hotel hotel) {
         ImageView appLogoImageView = headerLayout.findViewById(R.id.navHeaderLogoImageView);
         ImageView placeImageView = headerLayout.findViewById(R.id.navHeaderBackgroundImageView);
         TextView placeNameTextView = headerLayout.findViewById(R.id.navHeaderPlaceNameTextView);
         TextView placeEmailAddressTextView = headerLayout.findViewById(R.id.navHeaderEmailIdTextView);
 
         Glide.with(getApplicationContext()).load(R.drawable.logo_white).into(appLogoImageView);
-        Glide.with(getApplicationContext()).load(getString(R.string.temp_place_image_url)).into(placeImageView); //TODO: Perform Network Request to retrieve place image and place name
-        placeNameTextView.setText("Cafe HutTea");
+        Glide.with(getApplicationContext()).load(hotel.getHotelImageUrl()).into(placeImageView);
+        placeNameTextView.setText(hotel.getHotelName());
         placeEmailAddressTextView.setText(firebaseAuth.getCurrentUser().getEmail());
     }
 
