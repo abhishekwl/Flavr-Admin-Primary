@@ -3,6 +3,7 @@ package io.github.abhishekwl.flavradminprimary.Activities;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -32,8 +33,13 @@ import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageMetadata;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -64,6 +70,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private MaterialDialog materialDialog;
     private String requestUrl;
     private Hotel hotel;
+    private FirebaseStorage firebaseStorage;
+    private final int PICK_IMAGE_REQUEST = 987;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,9 +84,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void initializeViews() {
         firebaseAuth = FirebaseAuth.getInstance();
+        firebaseStorage = FirebaseStorage.getInstance();
         requestQueue = Volley.newRequestQueue(getApplicationContext());
         initializeNavigationView();
-        //Snackbar.make(mainTabLayout, "Signed in as "+firebaseAuth.getCurrentUser().getEmail(), Snackbar.LENGTH_SHORT).show();
         firebaseAuth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -132,7 +140,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             double placeLatitude = response.getDouble("latitude");
             double placeLongitude = response.getDouble("longitude");
             double placeAltitude = response.getDouble("altitude");
-            hotel = new Hotel(placeName, placeEmailId, placeImageUrl, placeContactNumber, placeLatitude, placeLongitude, placeAltitude);
+            int placeRange = response.getInt("range");
+
+            hotel = new Hotel(placeName, placeEmailId, placeImageUrl, placeContactNumber, placeLatitude, placeLongitude, placeAltitude, placeRange);
             setupHeaderLayout(hotel);
 
         } catch (JSONException e) {
@@ -189,52 +199,49 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_edit_range:
                 editRange();
                 break;
+            case R.id.nav_camera:
+                dispatchGalleryIntent();
+                break;
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
 
+    private void dispatchGalleryIntent() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select a new picture for your place :)"), PICK_IMAGE_REQUEST);
+    }
+
     private void renamePlace() {
-        try {
+        materialDialog = new MaterialDialog.Builder(MainActivity.this)
+                .title("Flavr (Admin)")
+                .content("Enter a new name for your place :)")
+                .inputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS)
+                .input("Place Name", "", new MaterialDialog.InputCallback() {
+                    @Override
+                    public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
+                        try {
+                            JSONObject jsonObject = new JSONObject();
+                            jsonObject.put("name", input.toString());
+                            performUpdateRequest(jsonObject);
 
-            materialDialog = new MaterialDialog.Builder(MainActivity.this)
-                    .title("Flavr (Admin)")
-                    .content("Enter a new name for your place :)")
-                    .inputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS)
-                    .input("Place Name", "", new MaterialDialog.InputCallback() {
-                        @Override
-                        public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
-                            hotel.setHotelName(input.toString());
+                        } catch (Exception ex) {
+                            if (ex.getMessage()!=null) Snackbar.make(mainTabLayout, ex.getMessage(), Snackbar.LENGTH_SHORT).show();
                         }
-                    }).positiveText("UPDATE")
-                    .negativeText("CANCEL")
-                    .positiveColor(colorPrimaryDark)
-                    .negativeColor(colorPrimaryDark)
-                    .onPositive(new MaterialDialog.SingleButtonCallback() {
-                        @Override
-                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                            try {
-                                JSONObject jsonObject = new JSONObject();
-                                jsonObject.put("name", hotel.getHotelName());
-                                performUpdateRequest(jsonObject);
-                                dialog.dismiss();
-
-
-                            } catch (Exception ex) {
-                                if (ex.getMessage()!=null) Snackbar.make(headerLayout, ex.getMessage(), Snackbar.LENGTH_SHORT).show();
-                            }
-                        }
-                    }).onNegative(new MaterialDialog.SingleButtonCallback() {
-                        @Override
-                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                            dialog.dismiss();
-                        }
-                    }).show();
-
-        } catch (Exception ex) {
-            if (ex.getMessage()!=null) Snackbar.make(mainTabLayout, ex.getMessage(), Snackbar.LENGTH_SHORT).show();
-        }
+                    }
+                })
+                .negativeText("CANCEL")
+                .positiveColor(colorPrimaryDark)
+                .negativeColor(colorPrimaryDark)
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        dialog.dismiss();
+                    }
+                }).show();
     }
 
     private void editRange() {
@@ -246,27 +253,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .input("New Range", Integer.toString(hotel.getHotelRange()), new MaterialDialog.InputCallback() {
                     @Override
                     public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
-                        hotel.setHotelRange(Integer.parseInt(input.toString()));
-                    }
-                })
-                .positiveText("UPDATE")
-                .negativeText("CANCEL")
-                .positiveColor(colorPrimaryDark)
-                .negativeColor(colorPrimaryDark)
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         try {
                             JSONObject jsonObject = new JSONObject();
-                            jsonObject.put("range", hotel.getHotelRange());
+                            jsonObject.put("range", input.toString());
                             performUpdateRequest(jsonObject);
-                            dialog.dismiss();
 
                         } catch (Exception ex) {
                             if (ex.getMessage()!=null) Snackbar.make(headerLayout, ex.getMessage(), Snackbar.LENGTH_SHORT).show();
                         }
                     }
                 })
+                .negativeText("CANCEL")
+                .positiveColor(colorPrimaryDark)
+                .negativeColor(colorPrimaryDark)
                 .onNegative(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
@@ -277,6 +276,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void performUpdateRequest(JSONObject jsonObject) {
+        if (materialDialog!=null && materialDialog.isShowing()) materialDialog.dismiss();
+
         materialDialog = new MaterialDialog.Builder(MainActivity.this)
                 .title("Flavr (Admin)")
                 .content("Updating place details...")
@@ -287,10 +288,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.PUT, requestUrl, jsonObject, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                materialDialog.dismiss();
                 try {
+                    materialDialog.dismiss();
+
                     if(response!=null && response.getString("_id")!=null) {
                         Snackbar.make(headerLayout, "Place details updated successfully.", Snackbar.LENGTH_SHORT).show();
+
+                        Log.v("RESPONSE", response.toString());
 
                         String placeName = response.getString("name");
                         String placeEmailId = response.getString("email_id");
@@ -301,7 +305,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         double placeAltitude = response.getDouble("altitude");
                         int placeRange = response.getInt("range");
 
-                        Hotel hotel = new Hotel(placeName, placeEmailId, placeImageUrl, placeContactNumber, placeLatitude, placeLongitude, placeAltitude, placeRange);
+                        hotel = new Hotel(placeName, placeEmailId, placeImageUrl, placeContactNumber, placeLatitude, placeLongitude, placeAltitude, placeRange);
                         setupHeaderLayout(hotel);
                     }
 
@@ -337,6 +341,45 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 e.printStackTrace();
             }
         } else  Snackbar.make(headerLayout, "Please enable location services.", Snackbar.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            Uri uri = data.getData();
+            uploadUriToFirebase(uri);
+        }
+    }
+
+    private void uploadUriToFirebase(Uri uri) {
+        materialDialog = new MaterialDialog.Builder(MainActivity.this)
+                .title("Flavr (Admin)")
+                .content("Updating place profile picture")
+                .iconRes(R.drawable.logo_small)
+                .progress(true, 0)
+                .show();
+
+        StorageReference storageReference = firebaseStorage.getReference("hotels/"+firebaseAuth.getCurrentUser().getUid()).child("profile_picture.jpg");
+        StorageMetadata storageMetadata = new StorageMetadata.Builder().setContentType("image/jpg").build();
+        storageReference.putFile(uri, storageMetadata).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                try {
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("image_url", taskSnapshot.getDownloadUrl().toString());
+                    performUpdateRequest(jsonObject);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                if (materialDialog.isShowing()) materialDialog.dismiss();
+            }
+        });
     }
 
     @Override
