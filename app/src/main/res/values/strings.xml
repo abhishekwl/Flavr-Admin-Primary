@@ -10,7 +10,7 @@
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
-    <string name="BASE_SERVER_URL">http://192.168.2.5:9999/api/v1</string>
+    <string name="BASE_SERVER_URL">http://192.168.2.6:9999/api/v1</string>
     <string name="temp_place_image_url">https://i0.wp.com/media.hungryforever.com/wp-content/uploads/2018/04/05223920/frappuccino-beverage-from-starbucks-coffee-157774909-5a6a23c2ba6177001a74f4b7.jpg</string>
 
     <string-array name="categories">

@@ -6,24 +6,40 @@ public class Hotel {
     private String hotelImageUrl;
     private String hotelEmailId;
     private String hotelContactNumber;
-    private int hotelLatitude, hotelLongitude;
+    private double hotelLatitude, hotelLongitude, hotelAltitude;
+    private int hotelRange;
 
-    public Hotel(String hotelName, String hotelImageUrl, String hotelEmailId, String hotelContactNumber, int hotelLatitude, int hotelLongitude) {
+    public Hotel(String hotelName, String hotelEmailId, String hotelImageUrl, String hotelContactNumber, double hotelLatitude, double hotelLongitude, double hotelAltitude, int hotelRange) {
         this.hotelName = hotelName;
         this.hotelImageUrl = hotelImageUrl;
         this.hotelEmailId = hotelEmailId;
         this.hotelContactNumber = hotelContactNumber;
         this.hotelLatitude = hotelLatitude;
         this.hotelLongitude = hotelLongitude;
+        this.hotelAltitude = hotelAltitude;
+        this.hotelRange = hotelRange;
     }
 
-    public Hotel(String hotelName, String hotelEmailId, String hotelContactNumber, int hotelLatitude, int hotelLongitude) {
+    public Hotel(String hotelName, String hotelEmailId, String hotelContactNumber, double hotelLatitude, double hotelLongitude, double hotelAltitude) {
         this.hotelName = hotelName;
         this.hotelImageUrl = "";
         this.hotelEmailId = hotelEmailId;
         this.hotelContactNumber = hotelContactNumber;
         this.hotelLatitude = hotelLatitude;
         this.hotelLongitude = hotelLongitude;
+        this.hotelAltitude = hotelAltitude;
+        this.hotelRange = 50;
+    }
+
+    public Hotel(String hotelName, String hotelEmailId, String hotelImageUrl, String hotelContactNumber, double hotelLatitude, double hotelLongitude, double hotelAltitude) {
+        this.hotelName = hotelName;
+        this.hotelImageUrl = hotelImageUrl;
+        this.hotelEmailId = hotelEmailId;
+        this.hotelContactNumber = hotelContactNumber;
+        this.hotelLatitude = hotelLatitude;
+        this.hotelLongitude = hotelLongitude;
+        this.hotelAltitude = hotelAltitude;
+        this.hotelRange = 50;
     }
 
     public String getHotelName() {
@@ -58,19 +74,35 @@ public class Hotel {
         this.hotelContactNumber = hotelContactNumber;
     }
 
-    public int getHotelLatitude() {
+    public double getHotelLatitude() {
         return hotelLatitude;
     }
 
-    public void setHotelLatitude(int hotelLatitude) {
+    public void setHotelLatitude(double hotelLatitude) {
         this.hotelLatitude = hotelLatitude;
     }
 
-    public int getHotelLongitude() {
+    public double getHotelLongitude() {
         return hotelLongitude;
     }
 
-    public void setHotelLongitude(int hotelLongitude) {
+    public void setHotelLongitude(double hotelLongitude) {
         this.hotelLongitude = hotelLongitude;
+    }
+
+    public int getHotelRange() {
+        return hotelRange;
+    }
+
+    public void setHotelRange(int hotelRange) {
+        this.hotelRange = hotelRange;
+    }
+
+    public double getHotelAltitude() {
+        return hotelAltitude;
+    }
+
+    public void setHotelAltitude(double hotelAltitude) {
+        this.hotelAltitude = hotelAltitude;
     }
 }

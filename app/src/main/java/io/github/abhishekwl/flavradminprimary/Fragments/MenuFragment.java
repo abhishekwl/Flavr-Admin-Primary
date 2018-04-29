@@ -103,12 +103,16 @@ public class MenuFragment extends Fragment {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, requestUrl, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                if (response!=null) processNetworkResponse(response);
+                if (response!=null) {
+                    swipeRefreshLayout.setRefreshing(false);
+                    processNetworkResponse(response);
+                }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (error!=null && error.getMessage()!=null) {
+                    swipeRefreshLayout.setRefreshing(false);
                     Snackbar.make(categoriesRecyclerView, error.getMessage(), Snackbar.LENGTH_SHORT).show();
                     error.printStackTrace();
                 }
