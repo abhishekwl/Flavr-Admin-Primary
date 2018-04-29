@@ -77,7 +77,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void initializeViews() {
         firebaseAuth = FirebaseAuth.getInstance();
         requestQueue = Volley.newRequestQueue(getApplicationContext());
-        requestUrl = getString(R.string.BASE_SERVER_URL)+"/hotels?uid="+firebaseAuth.getCurrentUser().getUid();
         initializeNavigationView();
         //Snackbar.make(mainTabLayout, "Signed in as "+firebaseAuth.getCurrentUser().getEmail(), Snackbar.LENGTH_SHORT).show();
         firebaseAuth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
@@ -89,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             }
         });
+        requestUrl = getString(R.string.BASE_SERVER_URL)+"/hotels?uid="+firebaseAuth.getCurrentUser().getUid();
         performNetworkRequest();
         selectPage(1);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
@@ -186,6 +186,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_edit_place_name:
                 renamePlace();
                 break;
+            case R.id.nav_edit_range:
+                editRange();
+                break;
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);
@@ -203,7 +206,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         @Override
                         public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
                             hotel.setHotelName(input.toString());
-                            dialog.dismiss();
                         }
                     }).positiveText("UPDATE")
                     .negativeText("CANCEL")
@@ -215,8 +217,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             try {
                                 JSONObject jsonObject = new JSONObject();
                                 jsonObject.put("name", hotel.getHotelName());
-                                dialog.dismiss();
                                 performUpdateRequest(jsonObject);
+                                dialog.dismiss();
+
 
                             } catch (Exception ex) {
                                 if (ex.getMessage()!=null) Snackbar.make(headerLayout, ex.getMessage(), Snackbar.LENGTH_SHORT).show();
@@ -232,6 +235,45 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } catch (Exception ex) {
             if (ex.getMessage()!=null) Snackbar.make(mainTabLayout, ex.getMessage(), Snackbar.LENGTH_SHORT).show();
         }
+    }
+
+    private void editRange() {
+        materialDialog = new MaterialDialog.Builder(MainActivity.this)
+                .title("Flavr (Admin)")
+                .content("Enter new range of visibility (Meters)")
+                .iconRes(R.drawable.logo_small)
+                .inputType(InputType.TYPE_NUMBER_FLAG_DECIMAL)
+                .input("New Range", Integer.toString(hotel.getHotelRange()), new MaterialDialog.InputCallback() {
+                    @Override
+                    public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
+                        hotel.setHotelRange(Integer.parseInt(input.toString()));
+                    }
+                })
+                .positiveText("UPDATE")
+                .negativeText("CANCEL")
+                .positiveColor(colorPrimaryDark)
+                .negativeColor(colorPrimaryDark)
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        try {
+                            JSONObject jsonObject = new JSONObject();
+                            jsonObject.put("range", hotel.getHotelRange());
+                            performUpdateRequest(jsonObject);
+                            dialog.dismiss();
+
+                        } catch (Exception ex) {
+                            if (ex.getMessage()!=null) Snackbar.make(headerLayout, ex.getMessage(), Snackbar.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        dialog.dismiss();
+                    }
+                })
+                .show();
     }
 
     private void performUpdateRequest(JSONObject jsonObject) {
